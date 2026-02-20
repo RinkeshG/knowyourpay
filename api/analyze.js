@@ -10,7 +10,7 @@ export default async function handler(req, res) {
 
   try {
     const body = req.body || {};
-    const model = process.env.ANTHROPIC_MODEL || body.model || 'claude-3-5-sonnet-20241022';
+    const model = process.env.ANTHROPIC_MODEL || body.model || 'claude-sonnet-4-6';
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
