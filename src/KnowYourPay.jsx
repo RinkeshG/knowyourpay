@@ -378,9 +378,13 @@ Return JSON: {"situation":{"standing":"underpaid","headline":"text with **bold**
 standing: underpaid|fair|well-paid|overpaid. quality: poor|decent|good|excellent. askLevel: low|right|high. All salary numbers as raw integers.`;
 
     try {
-      const res = await fetch("/api/analyze",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:2800,messages:[{role:"user",content:prompt}]})});
-      if(!res.ok) throw new Error("API " + res.status);
-      const d = await res.json();
+      const res = await fetch("/api/analyze",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-3-5-sonnet-20241022",max_tokens:2800,messages:[{role:"user",content:prompt}]})});
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        const msg = d.message || d.error?.message || (typeof d.error === 'string' ? d.error : null) || `Request failed (${res.status})`;
+        setError(msg);
+        return;
+      }
       const raw = (d.content||[]).map(c=>c.text||"").join("");
       let clean = raw.replace(/```json\s*/gi,"").replace(/```\s*/g,"").trim();
       const match = clean.match(/\{[\s\S]*\}/);
@@ -390,7 +394,7 @@ standing: underpaid|fair|well-paid|overpaid. quality: poor|decent|good|excellent
       setAnalysis(parsed);
     } catch(e) {
       console.error("KYP:", e);
-      setError("Analysis failed — please try again.");
+      setError(e.message || "Analysis failed — please try again.");
     } finally { setLoading(false); }
   };
 
