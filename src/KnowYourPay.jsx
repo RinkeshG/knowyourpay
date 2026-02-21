@@ -17,19 +17,78 @@ const SK="kyp_v3",UK="kyp_u_v3";
 
 /* ─── Structured Data (anti-gaming: all controlled inputs) ─── */
 const ROLES = [
-  "Software Engineer","Senior Software Engineer","Staff Engineer","Principal Engineer",
-  "Engineering Manager","Director of Engineering","VP Engineering","CTO",
-  "Product Manager","Senior Product Manager","Group PM","Director of Product","VP Product","CPO",
-  "Data Scientist","Senior Data Scientist","ML Engineer","Data Engineer","Analytics Manager",
-  "Designer","Senior Designer","UX Lead","Design Manager","Head of Design",
-  "Frontend Engineer","Backend Engineer","Full Stack Engineer","DevOps Engineer","SRE",
-  "Mobile Engineer (iOS)","Mobile Engineer (Android)","QA Engineer","SDET",
-  "Marketing Manager","Growth Manager","Content Lead","SEO Manager","Performance Marketing",
-  "Sales Manager","Account Executive","BDM","Sales Lead",
-  "HR Manager","Talent Acquisition Lead","People Ops Manager",
-  "Finance Manager","FP&A Analyst","CFO",
-  "Operations Manager","Program Manager","Scrum Master",
-  "Business Analyst","Strategy Consultant","Management Consultant",
+  /* Engineering */
+  "Software Engineer","Senior Software Engineer","Staff Engineer","Principal Engineer","Distinguished Engineer",
+  "Frontend Engineer","Senior Frontend Engineer","Backend Engineer","Senior Backend Engineer",
+  "Full Stack Engineer","Senior Full Stack Engineer","Mobile Engineer (iOS)","Mobile Engineer (Android)",
+  "DevOps Engineer","Senior DevOps Engineer","SRE","Platform Engineer","Cloud Engineer",
+  "Security Engineer","Embedded Engineer","Firmware Engineer","Systems Engineer",
+  "QA Engineer","Senior QA Engineer","SDET","Automation Engineer",
+  "Engineering Manager","Senior Engineering Manager","Director of Engineering","VP Engineering","SVP Engineering","CTO",
+  /* Data & AI */
+  "Data Scientist","Senior Data Scientist","Staff Data Scientist","Principal Data Scientist",
+  "Data Analyst","Senior Data Analyst","Business Intelligence Analyst",
+  "Data Engineer","Senior Data Engineer","ML Engineer","Senior ML Engineer","MLOps Engineer",
+  "AI Engineer","AI Research Scientist","NLP Engineer","Computer Vision Engineer",
+  "Analytics Manager","Head of Data","Director of Data Science","VP Data","Chief Data Officer",
+  /* Product */
+  "Product Manager","Senior Product Manager","Lead Product Manager","Group PM","Principal PM",
+  "Associate Product Manager","Technical Product Manager",
+  "Director of Product","VP Product","SVP Product","CPO","Head of Product",
+  "Product Analyst","Product Operations Manager",
+  /* Design */
+  "UX Designer","Senior UX Designer","UI Designer","Senior UI Designer",
+  "Product Designer","Senior Product Designer","Staff Product Designer","Principal Designer",
+  "UX Researcher","Senior UX Researcher","Lead UX Researcher",
+  "Visual Designer","Brand Designer","Motion Designer","Interaction Designer",
+  "Design Manager","Senior Design Manager","Director of Design","VP Design","Head of Design","CDO",
+  "Design System Lead","Content Designer","UX Writer",
+  /* Marketing */
+  "Marketing Manager","Senior Marketing Manager","Marketing Lead",
+  "Digital Marketing Manager","Performance Marketing Manager","Growth Marketing Manager",
+  "Content Marketing Manager","Senior Content Marketer","Content Strategist","Content Lead",
+  "SEO Manager","Senior SEO Specialist","SEM Manager",
+  "Social Media Manager","Community Manager","Brand Manager","Senior Brand Manager",
+  "Product Marketing Manager","Senior PMM","Director of PMM","Head of PMM",
+  "Growth Manager","Senior Growth Manager","Head of Growth","VP Growth",
+  "Marketing Analyst","Marketing Operations Manager",
+  "Director of Marketing","VP Marketing","CMO","Head of Marketing",
+  /* Sales */
+  "Sales Development Rep (SDR)","Business Development Rep (BDR)",
+  "Account Executive","Senior Account Executive","Enterprise Account Executive",
+  "Inside Sales Manager","Sales Manager","Senior Sales Manager","Regional Sales Manager",
+  "Business Development Manager","Senior BDM","Partnership Manager","Channel Sales Manager",
+  "Sales Engineer","Solutions Consultant","Pre-Sales Consultant",
+  "Account Manager","Senior Account Manager","Key Account Manager",
+  "Customer Success Manager","Senior CSM","Director of CS","VP Customer Success",
+  "Director of Sales","VP Sales","SVP Sales","Head of Sales","CRO",
+  /* HR / People */
+  "HR Manager","Senior HR Manager","HR Business Partner","Senior HRBP",
+  "Talent Acquisition Manager","Senior Recruiter","Technical Recruiter","Recruitment Lead","Head of TA",
+  "People Operations Manager","HR Operations Specialist","Compensation & Benefits Manager",
+  "L&D Manager","Training Manager","Organizational Development Manager",
+  "Employee Experience Manager","Culture Manager","DEI Manager",
+  "Director of HR","VP People","VP HR","Head of People","CHRO",
+  /* Finance */
+  "Financial Analyst","Senior Financial Analyst","FP&A Analyst","Senior FP&A Analyst","FP&A Manager",
+  "Finance Manager","Senior Finance Manager","Controller","Assistant Controller",
+  "Accounts Manager","Tax Manager","Treasury Manager","Revenue Operations Manager",
+  "Internal Auditor","Risk Analyst","Compliance Manager",
+  "Director of Finance","VP Finance","Head of Finance","CFO",
+  /* Operations / Strategy */
+  "Operations Manager","Senior Operations Manager","Business Operations Manager",
+  "Program Manager","Senior Program Manager","Technical Program Manager","TPM Lead",
+  "Project Manager","Senior Project Manager","Delivery Manager","Scrum Master","Agile Coach",
+  "Strategy Manager","Chief of Staff","Business Strategy Manager",
+  "Supply Chain Manager","Procurement Manager","Vendor Manager",
+  "Director of Operations","VP Operations","COO","Head of Operations",
+  /* Legal / Other */
+  "Legal Counsel","Senior Legal Counsel","Head of Legal","General Counsel",
+  "Business Analyst","Senior Business Analyst","Management Consultant","Strategy Consultant",
+  "Solutions Architect","Enterprise Architect","Technical Architect",
+  "Technical Writer","Documentation Manager",
+  "Customer Support Manager","Support Lead","Head of Support",
+  "Founder / Co-Founder","General Manager",
   "Other"
 ];
 
@@ -49,10 +108,64 @@ const CITIES = ["Bangalore","Mumbai","Delhi NCR","Hyderabad","Pune","Chennai","K
 const INDS = ["SaaS / B2B Tech","Consumer Tech","Fintech","Healthtech","Edtech","E-commerce","AI / ML","Gaming","D2C / Retail","Consulting","BFSI / Banking","Manufacturing","Media & Entertainment","Logistics","Pharma / Biotech","Telecom","Other"];
 const STGS = [{v:"seed",l:"Seed / Pre-Series A"},{v:"early",l:"Series A–B"},{v:"growth",l:"Series C–D"},{v:"late",l:"Late / Pre-IPO"},{v:"public",l:"Public / Listed"},{v:"mnc",l:"MNC / Enterprise"},{v:"bootstrap",l:"Bootstrapped"}];
 const CTRY = ["India","United States","United Kingdom","Canada","Germany","Singapore","UAE","Australia"];
-const FACTS = ["The average hike when switching jobs is 30–50% — most settle for 15%.","Only 39% of people negotiate. The other 61% leave money on the table.","Companies expect you to negotiate. Most offers have 10–20% room.","The #1 reason people don't negotiate? Fear the offer gets pulled. It almost never does.","Knowing the exact words matters more than knowing the right number.","90-day notice periods give you leverage — the company invested weeks hiring you.","Women negotiate 4× less often than men. Same skills, different pay. Let's fix that."];
+const LOAD_STAGES = [
+  {icon:"\ud83d\udd0d",title:"Scanning market data",sub:"Comparing your profile against thousands of similar roles",dur:6},
+  {icon:"\ud83d\udcca",title:"Building salary range",sub:"Mapping compensation across company stages & cities",dur:7},
+  {icon:"\ud83c\udfaf",title:"Analyzing your position",sub:"Where you stand vs. the market for your experience",dur:6},
+  {icon:"\ud83d\udca1",title:"Crafting negotiation scripts",sub:"Building word-for-word scripts for your situation",dur:8},
+  {icon:"\ud83d\udccb",title:"Finalizing game plan",sub:"Your ask, settle, and walk-away numbers",dur:6},
+];
+const NEG_TIPS = [
+  {q:"Never say your number first.",a:"Let them anchor. Ask: \"What\u2019s the budgeted range for this role?\" \u2014 forces them to show cards."},
+  {q:"Silence is a weapon.",a:"After they name a number, pause for 5 seconds. They\u2019ll often improve the offer to fill the silence."},
+  {q:"Always negotiate on email first.",a:"It removes pressure and gives you time to craft the perfect response. Never negotiate live unprepared."},
+  {q:"Competing offers change everything.",a:"Even if you prefer Company A, mentioning Company B\u2019s offer shifts the power dynamic entirely."},
+  {q:"The first offer is never the best.",a:"Companies budget 10-20% above their initial offer. Accepting immediately = leaving money on the table."},
+  {q:"Don\u2019t just negotiate salary.",a:"Title bumps, ESOP refreshes, signing bonuses, remote flexibility \u2014 sometimes easier wins than base pay."},
+]
 const SALARY_RANGES = {INR:[{v:"under-5",l:"Under ₹5 Lakhs"},{v:"5-10",l:"₹5–10 Lakhs"},{v:"10-20",l:"₹10–20 Lakhs"},{v:"20-35",l:"₹20–35 Lakhs"},{v:"35-50",l:"₹35–50 Lakhs"},{v:"50-75",l:"₹50–75 Lakhs"},{v:"75-100",l:"₹75L–1 Crore"},{v:"100-plus",l:"₹1 Crore+"}],USD:[{v:"under-50",l:"Under $50K"},{v:"50-80",l:"$50–80K"},{v:"80-120",l:"$80–120K"},{v:"120-180",l:"$120–180K"},{v:"180-250",l:"$180–250K"},{v:"250-plus",l:"$250K+"}],GBP:[{v:"under-40",l:"Under £40K"},{v:"40-60",l:"£40–60K"},{v:"60-90",l:"£60–90K"},{v:"90-130",l:"£90–130K"},{v:"130-plus",l:"£130K+"}]};
 const EXP_RANGES = [{v:"0-1",l:"0–1 years"},{v:"1-3",l:"1–3 years"},{v:"3-5",l:"3–5 years"},{v:"5-8",l:"5–8 years"},{v:"8-12",l:"8–12 years"},{v:"12-15",l:"12–15 years"},{v:"15-plus",l:"15+ years"}];
-const COMPANIES = ["Google","Microsoft","Amazon","Apple","Meta","Netflix","Flipkart","Swiggy","Zomato","Razorpay","PhonePe","CRED","Zerodha","Meesho","Ola","Uber","Paytm","Dream11","Unacademy","upGrad","Byju's","Groww","Slice","Jupiter","Coinbase","Stripe","Shopify","Atlassian","Salesforce","Adobe","Cisco","Oracle","SAP","Infosys","TCS","Wipro","HCL","Zoho","Freshworks","Chargebee","Postman","BrowserStack","Accenture","Deloitte","McKinsey","BCG","Goldman Sachs","JP Morgan","Morgan Stanley","Reliance","Tata","Aditya Birla","Mahindra","HDFC","ICICI","Kotak","SBI","Other"];
+const COMPANIES = [
+  "Google","Microsoft","Amazon","Apple","Meta","Netflix","Alphabet","X (Twitter)","Tesla","OpenAI","Anthropic",
+  "Nvidia","Intel","AMD","IBM","Samsung","Qualcomm","Broadcom",
+  "Salesforce","Adobe","Atlassian","ServiceNow","Workday","Databricks","Snowflake","Datadog","Cloudflare",
+  "Twilio","HubSpot","Zendesk","Figma","Notion","Canva","Airtable","Monday.com","Asana","Slack","Zoom",
+  "Stripe","Square","Plaid","Brex","Carta","Rippling","Deel","Gusto",
+  "Shopify","Squarespace","Wix","Webflow","BigCommerce",
+  "Elastic","Confluent","HashiCorp","PagerDuty","Splunk","GitLab","GitHub",
+  "Flipkart","Swiggy","Zomato","Razorpay","PhonePe","CRED","Zerodha","Meesho","Ola","Rapido",
+  "Paytm","Dream11","Unacademy","upGrad","Groww","Slice","Jupiter","Navi","KreditBee",
+  "Lenskart","Nykaa","Mamaearth","boAt","Purplle",
+  "ShareChat","Dailyhunt","Dunzo","BlinkIt","BigBasket","JioMart","Delhivery","Shiprocket",
+  "Pine Labs","BharatPe","MobiKwik","Simpl",
+  "OYO","MakeMyTrip","Cleartrip","ixigo","EaseMyTrip",
+  "Cars24","CarDekho","Spinny","Park+",
+  "Cure.fit (Cult)","Practo","PharmEasy","Tata 1mg","Innovaccer","Pristyn Care",
+  "Ather Energy","Ola Electric","Bounce",
+  "Khatabook","Vyapar","ClearTax","Zoho","Freshworks","Chargebee","Postman","BrowserStack",
+  "Hasura","Druva","Icertis","MoEngage","CleverTap","WebEngage","Haptik",
+  "Whatfix","Leena AI","Darwinbox","Keka HR",
+  "smallcase","Dhan","INDmoney","ET Money","Kuvera",
+  "Juspay","Cashfree","Decentro","Setu","M2P Fintech",
+  "Polygon","CoinDCX","CoinSwitch","WazirX",
+  "upstox","Angel One","Motilal Oswal",
+  "Urban Company","Porter","Apna",
+  "Infosys","TCS","Wipro","HCL Technologies","Tech Mahindra","LTIMindtree","Mphasis","Persistent Systems",
+  "Cognizant","Capgemini","Accenture","Deloitte","EY","PwC","KPMG",
+  "Reliance Industries","Jio Platforms","Tata Group","Tata Digital",
+  "Aditya Birla Group","Mahindra Group","Godrej","ITC","Hindustan Unilever",
+  "HDFC Bank","ICICI Bank","Kotak Mahindra","Axis Bank","SBI",
+  "Bajaj Finserv","Maruti Suzuki","Tata Motors",
+  "McKinsey","BCG","Bain","Oliver Wyman","Kearney",
+  "Goldman Sachs","JP Morgan","Morgan Stanley","Deutsche Bank","Barclays","Citi","HSBC",
+  "Uber","Grab","Booking.com","Airbnb","DoorDash","Instacart",
+  "Spotify","Pinterest","Snap","Reddit","Discord","Roblox",
+  "Palantir","UiPath","Scale AI","Vercel","Supabase",
+  "Coinbase","Binance","Revolut","Wise","PayPal","Adyen",
+  "ByteDance","SAP","Oracle","Cisco","VMware","Dell","HP",
+  "Siemens","Bosch","Honeywell",
+  "Other"
+];
 const PRO_FEATS = [{id:"scripts",icon:"🎯",title:"3 extra negotiation scripts",desc:"Competing offer, silence, deadline"},{id:"email",icon:"📧",title:"Counter-offer email template",desc:"Copy-paste negotiation email"},{id:"levers",icon:"💰",title:"Bonus lever strategies",desc:"Non-salary items to negotiate"},{id:"timeline",icon:"📅",title:"Week-by-week timeline",desc:"When to make each move"}];
 
 /* ─── Helpers ─── */
@@ -150,32 +263,67 @@ const CityIn = ({label,value,onChange,country}) => {
 
 const Chip = ({label,sel,onClick}) => <button onClick={onClick} type="button" style={{padding:"8px 16px",fontFamily:"var(--fb)",fontSize:13,fontWeight:sel?700:500,color:sel?"#fff":"var(--muted)",background:sel?"var(--accent)":"var(--card-bg)",border:sel?"1.5px solid var(--accent)":"1.5px solid var(--border)",borderRadius:8,cursor:"pointer",transition:"all 200ms"}}>{label}</button>;
 
+/* Multi-company: typeahead + free-text for unknowns + multi-select up to max */
+const MultiCompany = ({label,values,onChange,options,max=3,ph}) => {
+  const [open,setOpen]=useState(false),[q,setQ]=useState(""),ref=useRef(null);
+  const fl=useMemo(()=>{
+    if(!q||q.length<1)return options.filter(o=>!values.includes(o)).slice(0,10);
+    const lq=q.toLowerCase();
+    return options.filter(o=>o.toLowerCase().includes(lq)&&!values.includes(o)).slice(0,10);
+  },[q,options,values]);
+  useEffect(()=>{const h=e=>{if(ref.current&&!ref.current.contains(e.target))setOpen(false)};document.addEventListener("mousedown",h);document.addEventListener("touchstart",h);return()=>{document.removeEventListener("mousedown",h);document.removeEventListener("touchstart",h)}},[]);
+  const add=(v)=>{if(values.length<max&&!values.includes(v)){onChange([...values,v])}setQ("");setOpen(false)};
+  const remove=(v)=>onChange(values.filter(x=>x!==v));
+  const addCustom=()=>{const v=q.trim();if(v.length>=2&&values.length<max&&!values.includes(v)){onChange([...values,v]);setQ("");setOpen(false)}};
+  return <div style={{marginBottom:20,position:"relative"}} ref={ref}>
+    <LBL>{label} <span style={{fontWeight:400,textTransform:"none",letterSpacing:0,opacity:.7}}>({values.length}/{max})</span></LBL>
+    {values.length>0&&<div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:8}}>
+      {values.map(v=><span key={v} style={{display:"inline-flex",alignItems:"center",gap:6,padding:"6px 12px",fontFamily:"var(--fb)",fontSize:13,fontWeight:600,color:"var(--accent)",background:"var(--accent-l)",border:"1.5px solid var(--accent)",borderRadius:8}}>
+        {v}<button type="button" onClick={()=>remove(v)} style={{background:"none",border:"none",color:"var(--accent)",cursor:"pointer",fontSize:16,lineHeight:1,padding:0}}>\u00d7</button>
+      </span>)}
+    </div>}
+    {values.length<max&&<>
+      <input type="text" value={q} onChange={e=>{setQ(e.target.value);setOpen(true)}} onFocus={()=>setOpen(true)} placeholder={ph||"Search..."} onKeyDown={e=>{if(e.key==="Enter"&&q.trim().length>=2){e.preventDefault();if(fl.length>0)add(fl[0]);else addCustom()}}}
+        style={{width:"100%",padding:"13px 14px",fontFamily:"var(--fb)",fontSize:16,fontWeight:500,color:"var(--ink)",background:"var(--input-bg)",border:"1.5px solid var(--border)",borderRadius:10,outline:"none",boxSizing:"border-box"}} />
+      {open&&q.trim().length>=1&&<div style={{position:"absolute",top:"100%",left:0,right:0,zIndex:100,marginTop:4,background:"var(--card-bg)",border:"1.5px solid var(--border)",borderRadius:12,boxShadow:"0 12px 40px rgba(10,15,26,.12)",maxHeight:240,overflowY:"auto"}}>
+        {fl.map(o=><div key={o} onClick={()=>add(o)} style={{padding:"12px 16px",fontSize:15,fontWeight:500,color:"var(--ink)",cursor:"pointer",borderBottom:"1px solid var(--border)"}}
+          onMouseEnter={e=>e.target.style.background="var(--surface)"} onMouseLeave={e=>e.target.style.background="transparent"}>{o}</div>)}
+        {fl.length===0&&q.trim().length>=2&&<div onClick={addCustom} style={{padding:"12px 16px",fontSize:14,color:"var(--accent)",cursor:"pointer",fontWeight:600}}>+ Add \u201c{q.trim()}\u201d as custom company</div>}
+        {fl.length>0&&q.trim().length>=2&&!fl.some(o=>o.toLowerCase()===q.trim().toLowerCase())&&<div onClick={addCustom} style={{padding:"12px 16px",fontSize:13,color:"var(--muted)",cursor:"pointer",borderTop:"1px solid var(--border)"}}>Don\u2019t see it? <span style={{color:"var(--accent)",fontWeight:600}}>Add \u201c{q.trim()}\u201d</span></div>}
+      </div>}
+    </>}
+  </div>
+};
 
-/* ═══ BARS (B: plain language, no pXX jargon) ═══ */
-const Bars = ({range,youVal,label,cur,standing,mob}) => {
+
+/* ═══ BARS (B: plain language, YOU bar visually prominent) ═══ */
+const Bars = ({range,youVal,label,cur,standing,mob,userName}) => {
   const [hov,setHov]=useState(null);
-  /* B: Plain language labels instead of P25/P50/P75/P90 */
   const all=[
     {k:"low",l:"Low end",tip:"Bottom 25% earn this or less",v:range.p25},
     {k:"mid",l:"Average",tip:"What most people earn",v:range.p50},
     {k:"high",l:"Strong",tip:"Top 25% earners",v:range.p75},
-    {k:"top",l:"Top tier",tip:"Top 10% — the best-paid",v:range.p90}
+    {k:"top",l:"Top tier",tip:"Top 10%",v:range.p90}
   ];
-  if(youVal>0)all.push({k:"you",l:"YOU",tip:"Your current salary",v:youVal,isYou:true});
-  all.sort((a,b)=>a.v-b.v);const mx=Math.max(...all.map(b=>b.v)),BH=mob?130:200;
+  if(youVal>0)all.push({k:"you",l:userName||"YOU",tip:"Your salary",v:youVal,isYou:true});
+  all.sort((a,b)=>a.v-b.v);const mx=Math.max(...all.map(b=>b.v)),BH=mob?140:210;
   return <div style={{marginBottom:12}}>
     <div style={{fontFamily:"var(--fb)",fontSize:9,fontWeight:700,letterSpacing:".1em",textTransform:"uppercase",color:"var(--faint)",marginBottom:14}}>{label}</div>
     <div style={{display:"flex",alignItems:"flex-end",gap:mob?5:10,padding:"0 4px"}}>
-      {all.map((b,i)=>{const h=Math.max(Math.round((b.v/mx)*BH),28),isH=hov===i,yg=standing==="underpaid"?"linear-gradient(180deg,#fca5a5,#dc2626)":"linear-gradient(180deg,#dbeafe,#3b82f6)";
-        return <div key={b.k} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:4,cursor:"pointer",position:"relative",minWidth:0}}
+      {all.map((b,i)=>{const h=Math.max(Math.round((b.v/mx)*BH),28),isH=hov===i;
+        const yg=standing==="underpaid"?"linear-gradient(180deg,#fca5a5,#dc2626)":"linear-gradient(180deg,#93c5fd,#3b82f6)";
+        return <div key={b.k} style={{flex:b.isYou?1.3:1,display:"flex",flexDirection:"column",alignItems:"center",gap:4,cursor:"pointer",position:"relative",minWidth:0}}
           onMouseEnter={()=>setHov(i)} onMouseLeave={()=>setHov(null)} onTouchStart={()=>setHov(i)} onTouchEnd={()=>setTimeout(()=>setHov(null),1500)}>
-          {isH&&<div style={{position:"absolute",bottom:h+32,left:"50%",transform:"translateX(-50%)",background:"var(--ink)",color:"#fff",padding:"8px 12px",borderRadius:8,fontSize:12,whiteSpace:"nowrap",zIndex:10,boxShadow:"0 8px 28px rgba(10,15,26,.12)"}}>
-            <div style={{fontFamily:"var(--fm)",fontWeight:700}}>{fmt(b.v,cur)}</div><div style={{fontSize:10,opacity:.55,marginTop:2}}>{b.tip}</div>
+          {b.isYou&&<div style={{position:"absolute",bottom:h+30,left:"50%",transform:"translateX(-50%)",background:"var(--you)",color:"#fff",padding:"5px 12px",borderRadius:8,fontSize:11,whiteSpace:"nowrap",zIndex:10,boxShadow:"0 4px 16px rgba(217,119,6,.3)"}}>
+            <div style={{fontFamily:"var(--fm)",fontWeight:700}}>{fmt(b.v,cur)}</div>
+            <div style={{position:"absolute",bottom:-4,left:"50%",transform:"translateX(-50%) rotate(45deg)",width:8,height:8,background:"var(--you)"}}/></div>}
+          {isH&&!b.isYou&&<div style={{position:"absolute",bottom:h+30,left:"50%",transform:"translateX(-50%)",background:"var(--ink)",color:"#fff",padding:"6px 12px",borderRadius:8,fontSize:11,whiteSpace:"nowrap",zIndex:10,boxShadow:"0 4px 16px rgba(10,15,26,.12)"}}>
+            <div style={{fontFamily:"var(--fm)",fontWeight:700}}>{fmt(b.v,cur)}</div><div style={{fontSize:10,opacity:.55,marginTop:1}}>{b.tip}</div>
             <div style={{position:"absolute",bottom:-4,left:"50%",transform:"translateX(-50%) rotate(45deg)",width:8,height:8,background:"var(--ink)"}}/></div>}
-          {b.isYou&&<div style={{fontFamily:"var(--fb)",fontSize:mob?7:9,fontWeight:800,color:"var(--you)",letterSpacing:".08em",position:"absolute",top:-16}}>YOU</div>}
-          <span style={{fontFamily:"var(--fm)",fontSize:mob?7:9,fontWeight:b.isYou?700:600,color:b.isYou?"var(--you)":"var(--faint)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",maxWidth:"100%"}}>{fmt(b.v,cur)}</span>
-          <div style={{width:"100%",height:h,background:b.isYou?yg:"linear-gradient(180deg,#dbeafe,#93c5fd)",borderRadius:"4px 4px 2px 2px",animation:`barGrow 600ms ${b.isYou?all.length*100+200:i*100}ms cubic-bezier(.23,1,.32,1) both`,transformOrigin:"bottom",transition:"transform 120ms",transform:isH?"scaleY(1.03)":"scaleY(1)"}}/>
-          <span style={{fontFamily:"var(--fb)",fontSize:mob?7:9,fontWeight:b.isYou?800:600,color:b.isYou?"var(--you)":"var(--ghost)",letterSpacing:".04em"}}>{b.l}</span>
+          {!b.isYou&&<span style={{fontFamily:"var(--fm)",fontSize:mob?7:9,fontWeight:600,color:"var(--faint)"}}>{fmt(b.v,cur)}</span>}
+          {b.isYou&&<span style={{height:mob?9:11}}/>}
+          <div style={{width:"100%",height:h,background:b.isYou?yg:"linear-gradient(180deg,rgba(219,234,254,.7),#93c5fd)",borderRadius:"4px 4px 2px 2px",animation:`barGrow 600ms ${b.isYou?all.length*100+200:i*100}ms cubic-bezier(.23,1,.32,1) both`,transformOrigin:"bottom",transition:"transform 120ms",transform:isH?"scaleY(1.03)":"scaleY(1)",boxShadow:b.isYou?"0 0 16px rgba(217,119,6,.35)":"none",border:b.isYou?"2px solid var(--you)":"none",position:"relative"}}/>
+          <span style={{fontFamily:"var(--fb)",fontSize:mob?8:10,fontWeight:b.isYou?800:600,color:b.isYou?"var(--you)":"var(--ghost)",letterSpacing:b.isYou?".06em":".04em"}}>{b.isYou?"\u25c6 ":""}{b.l}</span>
         </div>})}
     </div>
   </div>
@@ -225,8 +373,7 @@ export default function KnowYourPay() {
   const [analysis,setA]=useState(null);
   const [error,setErr]=useState(null);
   const [mounted,setMnt]=useState(false);
-  const [factIdx,setFI]=useState(0);
-  const [elapsed,setEl]=useState(0);
+    const [elapsed,setEl]=useState(0);
   const [openTac,setOT]=useState(0);
   const [user,setUser]=useState(null);
   const [showAuth,setSA]=useState(false);
@@ -238,7 +385,7 @@ export default function KnowYourPay() {
   const mob=useM();
 
   /* (A) All controlled form state — no free-text for critical fields */
-  const [f,setF]=useState({cr:"",tr:"",lv:"",ye:"",ind:[],stg:[],tc:"",co:"India",ci:"",salRange:"",cb:"",ce:"",expRange:"",hc:"no",np:""});
+  const [f,setF]=useState({cr:"",tr:"",lv:"",ye:"",ind:[],stg:[],tc:[],co:"India",ci:"",salRange:"",cb:"",ce:"",expRange:"",hc:"no",np:""});
   const u=k=>v=>setF(p=>({...p,[k]:v}));
   const cur=f.co==="India"?"INR":f.co==="United Kingdom"?"GBP":"USD";
   const sym=cur==="INR"?"₹":cur==="GBP"?"£":"$";
@@ -249,10 +396,15 @@ export default function KnowYourPay() {
     try{const s=localStorage.getItem(UK);if(s){const u=JSON.parse(s);setUser(u);const a=localStorage.getItem(SK+"_"+u.id);if(a){setHU(true);setA(JSON.parse(a));const ul=localStorage.getItem(SK+"_ul_"+u.id);if(ul)setUL(+ul)}}}catch(e){}
   },[]);
 
-  useEffect(()=>{if(!loading)return;setFI(0);setEl(0);const a=setInterval(()=>setFI(p=>(p+1)%FACTS.length),4500),b=setInterval(()=>setEl(p=>p+1),1000);return()=>{clearInterval(a);clearInterval(b)}},[loading]);
+  const [loadStage,setLS]=useState(0),[tipIdx,setTI]=useState(0);
+  useEffect(()=>{if(!loading)return;setLS(0);setEl(0);setTI(Math.floor(Math.random()*NEG_TIPS.length));
+    let stage=0,acc=0;const dur=LOAD_STAGES.map(s=>s.dur);
+    const si=setInterval(()=>{setEl(p=>p+1);acc++;if(acc>=dur[stage]&&stage<dur.length-1){stage++;setLS(stage);acc=0}},1000);
+    const ti=setInterval(()=>setTI(p=>(p+1)%NEG_TIPS.length),7000);
+    return()=>{clearInterval(si);clearInterval(ti)}},[loading]);
   useEffect(()=>{if(analysis)setSI(makeShareCard())},[analysis]);
 
-  const ok=()=>{if(step===0)return f.cr&&f.tr&&f.ye&&f.ind.length>0;if(step===1)return f.salRange&&f.ci;if(step===2)return f.expRange&&f.tc;return false};
+  const ok=()=>{if(step===0)return f.cr&&f.tr&&f.ye&&f.ind.length>0;if(step===1)return f.salRange&&f.ci;if(step===2)return f.expRange&&f.tc.length>0;return false};
   const next=()=>{if(!ok())return;if(step<2){setStep(step+1);window.scrollTo({top:0,behavior:"smooth"})}else run()};
   const back=()=>{if(step>0){setStep(step-1)}};
 
@@ -324,6 +476,8 @@ export default function KnowYourPay() {
 };
 
   const a=analysis;
+  const firstName=user?.name&&user.name!=="User"?user.name.split(" ")[0]:"";
+
   const sM={underpaid:{c:"#b91c1c",bg:"#fef2f2",i:"↓",t:"Underpaid"},fair:{c:"#a16207",bg:"#fefce8",i:"→",t:"Fair"},"well-paid":{c:"#15803d",bg:"#f0fdf4",i:"↑",t:"Well Paid"},overpaid:{c:"#7c3aed",bg:"#f5f3ff",i:"↑↑",t:"Above Market"}};
   const qM={poor:{c:"#b91c1c",bg:"#fef2f2"},decent:{c:"#a16207",bg:"#fefce8"},good:{c:"#15803d",bg:"#f0fdf4"},excellent:{c:"#1e56a0",bg:"#eff6ff"}};
   const px="clamp(16px,4vw,32px)";
@@ -340,7 +494,7 @@ export default function KnowYourPay() {
         <Logo s={24}/>
         <div style={{fontFamily:"var(--fd)",fontSize:"clamp(20px,5vw,24px)",fontWeight:200,marginTop:20,marginBottom:4,lineHeight:1.2}}>Let's find out what <span style={{fontWeight:700,fontStyle:"italic"}}>you're worth</span></div>
         <p style={{fontSize:14,color:"var(--muted)",lineHeight:1.65,marginBottom:24}}>Quick sign-in to save your report. We only need your email — <strong style={{color:"var(--ink)"}}>zero data stored.</strong></p>
-        <button onClick={()=>{const id="u_"+Date.now()+"_"+Math.random().toString(36).slice(2,8);const ud={id,name:"User",email:"user@example.com",t:Date.now()};try{localStorage.setItem(UK,JSON.stringify(ud))}catch(e){}handleAuth(ud)}} style={{width:"100%",padding:"14px 20px",fontFamily:"var(--fb)",fontSize:16,fontWeight:600,color:"var(--ink)",background:"#fff",border:"1.5px solid var(--border)",borderRadius:12,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:10,boxShadow:"0 1px 3px rgba(10,15,26,.08)"}}>
+        <button onClick={()=>{const nm=prompt("What should we call you?","")?.trim()||"";const id="u_"+Date.now()+"_"+Math.random().toString(36).slice(2,8);const ud={id,name:nm||"User",email:"user@example.com",t:Date.now()};try{localStorage.setItem(UK,JSON.stringify(ud))}catch(e){}handleAuth(ud)}} style={{width:"100%",padding:"14px 20px",fontFamily:"var(--fb)",fontSize:16,fontWeight:600,color:"var(--ink)",background:"#fff",border:"1.5px solid var(--border)",borderRadius:12,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:10,boxShadow:"0 1px 3px rgba(10,15,26,.08)"}}>
           <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
           Continue with Google
         </button>
@@ -405,7 +559,7 @@ export default function KnowYourPay() {
             <div style={{width:mob?"100%":380,maxWidth:420,background:"var(--ink)",borderRadius:14,overflow:"hidden",boxShadow:"0 24px 80px rgba(10,15,26,.15)",animation:"float 6s ease infinite"}}>
               <div style={{padding:"18px 22px",borderBottom:"1px solid rgba(255,255,255,.06)"}}>
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:8}}>
-                  <div><div style={{fontFamily:"var(--fb)",fontSize:9,fontWeight:700,color:"rgba(255,255,255,.3)",letterSpacing:".12em",textTransform:"uppercase",marginBottom:5}}>Your verdict</div><div style={{fontFamily:"var(--fd)",fontSize:mob?16:18,fontWeight:300,color:"#fff",lineHeight:1.25}}>You're underpaid by <span style={{fontWeight:700,fontStyle:"italic",color:"#f87171"}}>₹6L/yr</span></div></div>
+                  <div><div style={{fontFamily:"var(--fb)",fontSize:9,fontWeight:700,color:"rgba(255,255,255,.3)",letterSpacing:".12em",textTransform:"uppercase",marginBottom:5}}>{firstName?firstName+", here\u2019s your verdict":"Your verdict"}</div><div style={{fontFamily:"var(--fd)",fontSize:mob?16:18,fontWeight:300,color:"#fff",lineHeight:1.25}}>You're underpaid by <span style={{fontWeight:700,fontStyle:"italic",color:"#f87171"}}>₹6L/yr</span></div></div>
                   <span style={{padding:"4px 10px",fontFamily:"var(--fb)",fontSize:9,fontWeight:700,color:"#b91c1c",background:"#fef2f2",borderRadius:5,flexShrink:0}}>UNDERPAID</span>
                 </div>
               </div>
@@ -478,7 +632,7 @@ export default function KnowYourPay() {
         {step===2&&<FI key="s2">
           <div style={{fontFamily:"var(--fd)",fontSize:"clamp(24px,5vw,28px)",fontWeight:200,letterSpacing:"-.02em",marginBottom:4}}>Where you're <span style={{fontWeight:700,fontStyle:"italic"}}>aiming</span></div>
           <div style={{fontSize:14,color:"var(--muted)",marginBottom:28}}>Target company and expected compensation.</div>
-          <TypeSel label="Target Company" value={f.tc} onChange={u("tc")} options={COMPANIES} ph="Search company..."/>
+          <MultiCompany label="Target Companies" values={f.tc} onChange={v=>setF(p=>({...p,tc:v}))} options={COMPANIES} max={3} ph="Search companies... (up to 3)"/>
           <SEL label="Expected Salary Range" value={f.expRange} onChange={u("expRange")} options={SALARY_RANGES[cur]||SALARY_RANGES.INR} ph="Select expected range..."/>
           <div style={{marginBottom:20}}><LBL>Competing offers?</LBL>
             <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>{[["no","No"],["yes","Yes"],["expecting soon","Expecting soon"]].map(([v,l])=><Chip key={v} label={l} sel={f.hc===v} onClick={()=>u("hc")(v)}/>)}</div>
@@ -493,15 +647,40 @@ export default function KnowYourPay() {
 
 
         {/* LOADING */}
-        {step===3&&loading&&<FI><div style={{textAlign:"center",padding:mob?"40px 0":"60px 0"}}>
-          <div style={{width:40,height:40,margin:"0 auto 24px",border:"3px solid var(--border)",borderTopColor:"var(--accent)",borderRadius:"50%",animation:"spin .7s linear infinite"}}/>
-          <div style={{fontFamily:"var(--fd)",fontSize:mob?20:24,fontWeight:200,marginBottom:6}}>Crunching <span style={{fontWeight:700,fontStyle:"italic"}}>your numbers</span>...</div>
-          <div style={{fontSize:14,color:"var(--muted)",marginBottom:36}}>Building your playbook for <span style={{fontWeight:600,color:"var(--ink)"}}>{f.tr||"your next role"}</span></div>
-          <div style={{maxWidth:420,margin:"0 auto",background:"var(--card-bg)",border:"1px solid var(--border)",borderRadius:12,padding:"16px 20px",textAlign:"left"}}>
-            <div style={{fontFamily:"var(--fm)",fontSize:10,fontWeight:600,color:"var(--accent)",letterSpacing:".06em",textTransform:"uppercase",marginBottom:8}}>DID YOU KNOW</div>
-            <div key={factIdx} style={{fontSize:14,color:"var(--slate)",lineHeight:1.65,animation:"factCycle 4.5s ease infinite"}}>{FACTS[factIdx]}</div>
+        {step===3&&loading&&<FI><div style={{padding:mob?"32px 0":"48px 0"}}>
+          <div style={{textAlign:"center",marginBottom:32}}>
+            <div style={{fontFamily:"var(--fd)",fontSize:mob?20:26,fontWeight:200,marginBottom:6}}>
+              Hang tight{firstName?`, ${firstName}`:""} \u2014 <span style={{fontWeight:700,fontStyle:"italic"}}>building your playbook</span>
+            </div>
+            <div style={{fontSize:14,color:"var(--muted)"}}>Analyzing <span style={{fontWeight:600,color:"var(--ink)"}}>{f.cr}</span> \u2192 <span style={{fontWeight:600,color:"var(--accent)"}}>{f.tr}</span>{f.tc.length>0?` at ${f.tc[0]}`:""}</div>
           </div>
-          <div style={{marginTop:24,fontFamily:"var(--fm)",fontSize:11,color:"var(--faint)"}}>{elapsed}s</div>
+          <div style={{maxWidth:440,margin:"0 auto 28px"}}>
+            {LOAD_STAGES.map((s,i)=>{const done=i<loadStage,active=i===loadStage;
+              return <div key={i} style={{display:"flex",gap:12,alignItems:"flex-start",marginBottom:i<LOAD_STAGES.length-1?12:0,opacity:done?.4:active?1:.25,transition:"all 400ms"}}>
+                <div style={{width:36,height:36,borderRadius:10,background:done?"var(--up)":active?"var(--accent)":"var(--surface)",border:done||active?"none":"1.5px solid var(--border)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all 400ms"}}>
+                  {done?<span style={{color:"#fff",fontSize:14,fontWeight:700}}>\u2713</span>:active?<div style={{width:16,height:16,border:"2px solid #fff",borderTopColor:"transparent",borderRadius:"50%",animation:"spin .7s linear infinite"}}/>:<span style={{fontSize:14}}>{s.icon}</span>}
+                </div>
+                <div><div style={{fontSize:14,fontWeight:active?700:done?500:400,color:active?"var(--ink)":done?"var(--muted)":"var(--ghost)"}}>{s.title}</div>
+                  {active&&<div style={{fontSize:12,color:"var(--muted)",marginTop:2,lineHeight:1.4}}>{s.sub}</div>}
+                </div>
+              </div>})}
+          </div>
+          <div style={{maxWidth:440,margin:"0 auto 28px"}}>
+            <div style={{height:4,background:"var(--border)",borderRadius:2,overflow:"hidden"}}>
+              <div style={{height:"100%",width:`${Math.min(((loadStage+1)/LOAD_STAGES.length)*100,95)}%`,background:"linear-gradient(90deg,var(--accent),#60a5fa)",borderRadius:2,transition:"width 1s ease"}}/>
+            </div>
+            <div style={{display:"flex",justifyContent:"space-between",marginTop:6}}>
+              <span style={{fontFamily:"var(--fm)",fontSize:10,color:"var(--faint)"}}>{elapsed}s</span>
+              <span style={{fontFamily:"var(--fm)",fontSize:10,color:"var(--faint)"}}>~30s</span>
+            </div>
+          </div>
+          <div style={{maxWidth:440,margin:"0 auto",background:"var(--ink)",borderRadius:14,padding:mob?"18px":"22px",color:"#fff"}}>
+            <div style={{fontFamily:"var(--fm)",fontSize:9,fontWeight:700,color:"#60a5fa",letterSpacing:".08em",textTransform:"uppercase",marginBottom:10}}>NEGOTIATION TIP</div>
+            <div key={tipIdx} style={{animation:"factCycle 7s ease infinite"}}>
+              <div style={{fontFamily:"var(--fd)",fontSize:mob?16:18,fontWeight:600,fontStyle:"italic",color:"rgba(255,255,255,.9)",lineHeight:1.35,marginBottom:8}}>\u201c{NEG_TIPS[tipIdx].q}\u201d</div>
+              <div style={{fontSize:13,color:"rgba(255,255,255,.45)",lineHeight:1.6}}>{NEG_TIPS[tipIdx].a}</div>
+            </div>
+          </div>
         </div></FI>}
 
         {error&&<FI><div style={{textAlign:"center",padding:"60px 0"}}>
@@ -516,13 +695,13 @@ export default function KnowYourPay() {
           <FI d={0}><div style={{background:"var(--card-bg)",border:"1px solid var(--border)",borderRadius:14,overflow:"hidden",marginBottom:12,boxShadow:"0 4px 24px rgba(10,15,26,.06)"}}>
             <div style={{background:"var(--ink)",padding:mob?"16px 18px":"20px 24px"}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:10,flexWrap:"wrap"}}>
-                <div style={{flex:1,minWidth:180}}><div style={{fontFamily:"var(--fb)",fontSize:9,fontWeight:700,color:"rgba(255,255,255,.35)",letterSpacing:".12em",textTransform:"uppercase",marginBottom:6}}>Your verdict</div><div style={{fontFamily:"var(--fd)",fontSize:mob?18:22,fontWeight:300,color:"rgba(255,255,255,.85)",lineHeight:1.3}}><Bd t={a.situation.headline} c="#fff"/></div></div>
+                <div style={{flex:1,minWidth:180}}><div style={{fontFamily:"var(--fb)",fontSize:9,fontWeight:700,color:"rgba(255,255,255,.35)",letterSpacing:".12em",textTransform:"uppercase",marginBottom:6}}>{firstName?firstName+", here\u2019s your verdict":"Your verdict"}</div><div style={{fontFamily:"var(--fd)",fontSize:mob?18:22,fontWeight:300,color:"rgba(255,255,255,.85)",lineHeight:1.3}}><Bd t={a.situation.headline} c="#fff"/></div></div>
                 <Pill text={`${sM[a.situation.standing]?.i||"→"} ${sM[a.situation.standing]?.t||"Fair"}`} color={sM[a.situation.standing]?.c} bg={sM[a.situation.standing]?.bg}/>
               </div>
             </div>
             <div style={{padding:mob?"18px":"24px"}}>
               <div style={{fontSize:mob?14:15,color:"var(--slate)",lineHeight:1.7,marginBottom:24}}><Bd t={a.situation.summary}/></div>
-              <Bars range={a.situation.marketRange} youVal={0} label={`Market range · ${f.cr} · ${f.ci||f.co}`} cur={cur} standing={a.situation.standing} mob={mob}/>
+              <Bars range={a.situation.marketRange} youVal={0} label={`Market range · ${f.cr} · ${f.ci||f.co}`} cur={cur} standing={a.situation.standing} mob={mob} userName={firstName||"YOU"}/>
               {/* (B) Plain language percentile display */}
               <div style={{padding:mob?"14px":"16px",background:"var(--surface)",borderRadius:12,border:"1px solid var(--border)",marginTop:12}}>
                 <div style={{display:"flex",alignItems:"center",gap:mob?10:14,marginBottom:12}}>
@@ -542,7 +721,7 @@ export default function KnowYourPay() {
 
           {/* Opportunity */}
           <FI d={200}><div style={{background:"var(--card-bg)",border:"1px solid var(--border)",borderRadius:14,padding:mob?"18px":"24px",marginBottom:12,boxShadow:"0 4px 24px rgba(10,15,26,.06)"}}>
-            <div style={{fontFamily:"var(--fm)",fontSize:10,fontWeight:700,letterSpacing:".08em",textTransform:"uppercase",color:"var(--accent)",marginBottom:14}}>The opportunity</div>
+            <div style={{fontFamily:"var(--fm)",fontSize:10,fontWeight:700,letterSpacing:".08em",textTransform:"uppercase",color:"var(--accent)",marginBottom:14}}>{firstName?firstName+"\u2019s opportunity":"The opportunity"}</div>
             <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:14,flexWrap:"wrap"}}>
               <Pill text={`${a.opportunity.quality||"good"} move`} color={qM[a.opportunity.quality]?.c||"#15803d"} bg={qM[a.opportunity.quality]?.bg||"#f0fdf4"}/>
               <span style={{fontFamily:"var(--fm)",fontSize:18,fontWeight:700,color:a.opportunity.jumpPct>0?"var(--up)":"var(--down)"}}>{a.opportunity.jumpPct>0?"+":""}{a.opportunity.jumpPct}%</span>
@@ -551,7 +730,7 @@ export default function KnowYourPay() {
             <div style={{padding:"12px 16px",borderRadius:10,marginBottom:18,background:a.opportunity.askLevel==="low"?"#fef2f2":a.opportunity.askLevel==="high"?"#fefce8":"#f0fdf4",borderLeft:`3px solid ${a.opportunity.askLevel==="low"?"#dc2626":a.opportunity.askLevel==="high"?"#d97706":"#16a34a"}`}}>
               <div style={{fontSize:14,fontWeight:600,color:a.opportunity.askLevel==="low"?"#b91c1c":a.opportunity.askLevel==="high"?"#a16207":"#15803d",lineHeight:1.5}}>{a.opportunity.askLevel==="low"?"↓ ":a.opportunity.askLevel==="high"?"⚠ ":"✓ "}{a.opportunity.askFeedback}</div>
             </div>
-            <Bars range={a.opportunity.targetRange} youVal={0} label={`Target range · ${f.tr} · ${f.tc}`} cur={cur} standing={a.opportunity.askLevel==="low"?"underpaid":"fair"} mob={mob}/>
+            <Bars range={a.opportunity.targetRange} youVal={0} label={`Target range · ${f.tr} · ${f.tc[0]||""}`} cur={cur} standing={a.opportunity.askLevel==="low"?"underpaid":"fair"} mob={mob} userName={firstName||"YOU"}/>
             <div style={{fontSize:mob?14:15,color:"var(--slate)",lineHeight:1.7,marginTop:4}}><Bd t={a.opportunity.insight}/></div>
           </div></FI>
 
@@ -563,7 +742,7 @@ export default function KnowYourPay() {
 
           {/* GAME PLAN (C: Pro UI restored — tactic 1 free, 2-4 locked behind invite) */}
           <FI d={400}><div style={{background:"var(--ink)",borderRadius:14,padding:mob?"20px":"28px",marginBottom:12,color:"#fff"}}>
-            <div style={{fontFamily:"var(--fm)",fontSize:10,fontWeight:600,color:"rgba(255,255,255,.3)",letterSpacing:".08em",textTransform:"uppercase",marginBottom:20}}>Your game plan</div>
+            <div style={{fontFamily:"var(--fm)",fontSize:10,fontWeight:600,color:"rgba(255,255,255,.3)",letterSpacing:".08em",textTransform:"uppercase",marginBottom:20}}>{firstName?firstName+"\u2019s game plan":"Your game plan"}</div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:mob?6:8,marginBottom:20}}>
               {[{l:"Ask for",v:a.gameplan.askFor,c:"#60a5fa"},{l:"Aim to land",v:a.gameplan.settleAt,c:"#34d399"},{l:"Don't go below",v:a.gameplan.dontGoBelow,c:"#f87171"}].map(x=><div key={x.l} style={{textAlign:"center",padding:mob?"12px 6px":"16px 8px",borderRadius:10,background:"rgba(255,255,255,.05)",border:"1px solid rgba(255,255,255,.07)"}}><div style={{fontFamily:"var(--fm)",fontSize:mob?14:18,fontWeight:700,color:x.c,marginBottom:4}}>{fmt(x.v,cur)}</div><div style={{fontFamily:"var(--fb)",fontSize:mob?8:10,fontWeight:700,color:"rgba(255,255,255,.3)",textTransform:"uppercase",letterSpacing:".06em"}}>{x.l}</div></div>)}
             </div>
