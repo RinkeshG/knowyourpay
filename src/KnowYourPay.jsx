@@ -262,26 +262,66 @@ export default function KnowYourPay() {
 
   /* (G) API call — in production this goes to /api/analyze, prompt never client-side */
   const run = async () => {
-    setStep(3);setLoading(true);setErr(null);window.scrollTo({top:0,behavior:"smooth"});
-    const indStr=f.ind.join(", ");
-    const stgStr=f.stg.length?f.stg.map(s=>{const x=STGS.find(st=>st.v===s);return x?x.l:s}).join(", "):"not specified";
-    const lvStr=f.lv?LEVELS.find(l=>l.v===f.lv)?.l||f.lv:"not specified";
+  setStep(3);
+  setLoading(true);
+  setErr(null);
+  window.scrollTo({ top: 0, behavior: "smooth" });
 
-    /* G: In production, move this to a Vercel /api/analyze route.
-       Frontend sends: { role, target, level, exp, industries, stages, company, location, salaryRange, expectedRange, competing, notice }
-       Backend builds prompt + calls Claude. This prevents prompt manipulation.
-       For now, calling directly with controlled inputs (all dropdowns, no free text). */
-    const prompt = `You are a salary negotiation expert for the Indian tech market. Return ONLY valid JSON. No markdown.\n\nCANDIDATE:\n- Current: ${f.cr} (${lvStr})\n- Target: ${f.tr}\n- Experience: ${f.ye}\n- Industries: ${indStr}\n- Company stages: ${stgStr}\n- Target company: ${f.tc}\n- Location: ${f.ci}, ${f.co}\n- Current salary range: ${f.salRange}\n- Bonus: ${f.cb||"none"}, ESOPs: ${f.ce||"none"}\n- Expected range: ${f.expRange}\n- Competing offers: ${f.hc}\n- Notice: ${f.np||"standard"}\n\nReturn: {"situation":{"standing":"underpaid","headline":"with **bold**","summary":"2 plain-language sentences, no percentile jargon","marketRange":{"p25":0,"p50":0,"p75":0,"p90":0},"percentile":35,"percentileText":"plain language sentence like: Most people in your role earn more than you"},"opportunity":{"quality":"good","jumpPct":40,"avgJump":25,"targetRange":{"p25":0,"p50":0,"p75":0,"p90":0},"askFeedback":"sentence","askLevel":"right","insight":"2 sentences **bold**"},"gameplan":{"askFor":0,"settleAt":0,"dontGoBelow":0,"whyThisNumber":"sentence","tactics":[{"title":"name","when":"timing","script":"exact words 2-3 sentences","why":"reason"},{"title":"name","when":"timing","script":"words","why":"reason"},{"title":"name","when":"timing","script":"words","why":"reason"},{"title":"name","when":"timing","script":"words","why":"reason"}],"watchOut":["flag","flag"],"bonusLevers":[{"what":"lever","ask":"specific ask"},{"what":"lever","ask":"ask"},{"what":"lever","ask":"ask"}],"hypeAdjusted":{"low":0,"high":0},"emailDraft":"3 sentence counter-offer email","timeline":[{"day":"Week 1","action":"action"},{"day":"Week 2-3","action":"action"},{"day":"Week 4","action":"action"}]},"confidence":{"score":72,"note":"caveat"}}\nIMPORTANT: standing=underpaid|fair|well-paid|overpaid. quality=poor|decent|good|excellent. askLevel=low|right|high. Salaries as raw integers in ${cur}. Use PLAIN LANGUAGE — never say percentile, p25, p50 etc. Say "most people", "top earners", "lower end" etc.`;
-    try {
-      const res=await fetch("/api/analyze",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:2800,messages:[{role:"user",content:prompt}]})});
-      if(!res.ok)throw new Error("API "+res.status);
-      const d=await res.json(),raw=(d.content||[]).map(c=>c.text||"").join("");
-      const match=raw.replace(/```json\s*/gi,"").replace(/```\s*/g,"").trim().match(/\{[\s\S]*\}/);
-      if(!match)throw new Error("No JSON");const parsed=JSON.parse(match[0]);
-      if(!parsed.situation||!parsed.gameplan)throw new Error("Incomplete");
-      setA(parsed);if(user){try{localStorage.setItem(SK+"_"+user.id,JSON.stringify(parsed));setHU(true)}catch(e){}}
-    }catch(e){console.error("KYP:",e);setErr("Analysis failed — please try again.")}finally{setLoading(false)}
+  // These are for display only — backend can take raw values too
+  const lvStr = f.lv ? (LEVELS.find(l => l.v === f.lv)?.l || f.lv) : "not specified";
+
+  const payload = {
+    currentRole: f.cr,
+    targetRole: f.tr,
+    level: lvStr,                // or send f.lv if you prefer
+    experience: f.ye,
+    industries: f.ind,            // array
+    stages: f.stg,                // array
+    targetCompany: f.tc,
+    country: f.co,
+    city: f.ci,
+    salaryRange: f.salRange,
+    bonus: f.cb || "none",
+    esops: f.ce || "none",
+    expectedRange: f.expRange,
+    competing: f.hc || "no",
+    notice: f.np || "standard",
+    currency: cur                 // INR / USD / GBP
   };
+
+  try {
+    const res = await fetch("/api/analyze", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      throw new Error(data?.error || data?.message || `API ${res.status}`);
+    }
+
+    // Backend returns the final parsed analysis JSON already
+    if (!data?.situation || !data?.gameplan) {
+      throw new Error("Incomplete analysis");
+    }
+
+    setA(data);
+
+    if (user) {
+      try {
+        localStorage.setItem(SK + "_" + user.id, JSON.stringify(data));
+        setHU(true);
+      } catch {}
+    }
+  } catch (e) {
+    console.error("KYP:", e);
+    setErr("Analysis failed — please try again.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   const a=analysis;
   const sM={underpaid:{c:"#b91c1c",bg:"#fef2f2",i:"↓",t:"Underpaid"},fair:{c:"#a16207",bg:"#fefce8",i:"→",t:"Fair"},"well-paid":{c:"#15803d",bg:"#f0fdf4",i:"↑",t:"Well Paid"},overpaid:{c:"#7c3aed",bg:"#f5f3ff",i:"↑↑",t:"Above Market"}};
