@@ -1,51 +1,64 @@
 // /api/analyze.js — Vercel Serverless Function
-// (G) Prompt logic lives server-side. Frontend sends structured data, backend builds prompt.
+// Prompt logic lives server-side. Frontend sends structured data, backend builds prompt.
 // Deploy: place in /api/analyze.js in your Vercel project root.
 // Env var needed: ANTHROPIC_API_KEY (set in Vercel dashboard → Settings → Environment Variables)
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+  // (Optional but helpful) handle preflight
+  if (req.method === "OPTIONS") return res.status(204).end();
+
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
   }
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
-    return res.status(500).json({ error: 'API key not configured' });
+    return res.status(500).json({ error: "API key not configured" });
   }
 
   try {
+    // Ensure body is an object (covers some edge cases)
+    const body = typeof req.body === "string" ? JSON.parse(req.body) : (req.body || {});
+
     const {
       currentRole, targetRole, level, experience,
       industries, stages, targetCompany,
       country, city, salaryRange, bonus, esops,
       expectedRange, competing, notice, currency
-    } = req.body;
+    } = body;
 
     // Validate required fields
-    if (!currentRole || !targetRole || !experience || !industries?.length || !salaryRange || !expectedRange || !targetCompany) {
-      return res.status(400).json({ error: 'Missing required fields' });
+    if (
+      !currentRole ||
+      !targetRole ||
+      !experience ||
+      !industries?.length ||
+      !salaryRange ||
+      !expectedRange ||
+      !targetCompany
+    ) {
+      return res.status(400).json({ error: "Missing required fields" });
     }
 
     // Validate against known allow-lists (anti-gaming)
-    const ALLOWED_CURRENCIES = ['INR', 'USD', 'GBP'];
-    const cur = ALLOWED_CURRENCIES.includes(currency) ? currency : 'INR';
-    const sym = cur === 'INR' ? '₹' : cur === 'GBP' ? '£' : '$';
+    const ALLOWED_CURRENCIES = ["INR", "USD", "GBP"];
+    const cur = ALLOWED_CURRENCIES.includes(currency) ? currency : "INR";
 
-    const prompt = `You are a salary negotiation expert for the ${country || 'Indian'} tech market. Return ONLY valid JSON. No markdown, no backticks.
+    const prompt = `You are a salary negotiation expert for the ${country || "Indian"} tech market. Return ONLY valid JSON. No markdown, no backticks.
 
 CANDIDATE:
-- Current: ${currentRole} (${level || 'not specified'})
+- Current: ${currentRole} (${level || "not specified"})
 - Target: ${targetRole}
 - Experience: ${experience}
-- Industries: ${industries.join(', ')}
-- Company stages: ${stages?.join(', ') || 'not specified'}
+- Industries: ${industries.join(", ")}
+- Company stages: ${stages?.join(", ") || "not specified"}
 - Target company: ${targetCompany}
-- Location: ${city ? city + ', ' : ''}${country}
+- Location: ${city ? city + ", " : ""}${country || ""}
 - Current salary range: ${salaryRange}
-- Bonus: ${bonus || 'none'}, ESOPs: ${esops || 'none'}
+- Bonus: ${bonus || "none"}, ESOPs: ${esops || "none"}
 - Expected range: ${expectedRange}
-- Competing offers: ${competing || 'no'}
-- Notice: ${notice || 'standard'}
+- Competing offers: ${competing || "no"}
+- Notice: ${notice || "standard"}
 
 Return this exact JSON structure:
 {
@@ -96,43 +109,59 @@ Return this exact JSON structure:
 
 IMPORTANT: All salary values as raw integers in ${cur}. Use PLAIN LANGUAGE — never say percentile, p25, p50, p75, p90. Say "most people", "top earners", "lower end", "average" etc.`;
 
-    const response = await fetch('/api/analyze', {
-      method: 'POST',
+    // ✅ IMPORTANT FIX: call Anthropic directly from the SERVER (not /api/analyze)
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
+        "Content-Type": "application/json",
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
+        // Keeping your model exactly as you requested:
+        model: "claude-sonnet-4-6",
         max_tokens: 2800,
-        messages: [{ role: 'user', content: prompt }],
+        messages: [{ role: "user", content: prompt }],
       }),
     });
 
     if (!response.ok) {
-      const err = await response.text();
-      console.error('Anthropic API error:', err);
-      return res.status(502).json({ error: 'Analysis service unavailable' });
+      const errText = await response.text().catch(() => "");
+      console.error("Anthropic API error:", response.status, errText);
+      return res.status(502).json({
+        error: "Analysis service unavailable",
+        status: response.status,
+        // keep it short so you can see the reason in Vercel logs
+        details: errText?.slice?.(0, 600) || "Unknown error",
+      });
     }
 
     const data = await response.json();
-    const raw = (data.content || []).map(c => c.text || '').join('');
-    const clean = raw.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+
+    const raw = (data.content || []).map((c) => c.text || "").join("");
+    const clean = raw.replace(/```json\s*/gi, "").replace(/```\s*/g, "").trim();
     const match = clean.match(/\{[\s\S]*\}/);
 
     if (!match) {
-      return res.status(502).json({ error: 'Invalid response from analysis' });
+      console.error("Invalid model output (no JSON object found):", clean.slice(0, 600));
+      return res.status(502).json({ error: "Invalid response from analysis" });
     }
 
-    const parsed = JSON.parse(match[0]);
+    let parsed;
+    try {
+      parsed = JSON.parse(match[0]);
+    } catch (e) {
+      console.error("JSON parse failed:", e, match[0].slice(0, 600));
+      return res.status(502).json({ error: "Invalid JSON from analysis" });
+    }
+
     if (!parsed.situation || !parsed.gameplan) {
-      return res.status(502).json({ error: 'Incomplete analysis' });
+      return res.status(502).json({ error: "Incomplete analysis" });
     }
 
     return res.status(200).json(parsed);
   } catch (error) {
-    console.error('Analysis error:', error);
-    return res.status(500).json({ error: 'Analysis failed' });
+    console.error("Analysis error:", error);
+    return res.status(500).json({ error: "Analysis failed" });
   }
 }
