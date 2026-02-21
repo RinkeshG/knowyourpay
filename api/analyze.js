@@ -96,7 +96,7 @@ Return this exact JSON structure:
 
 IMPORTANT: All salary values as raw integers in ${cur}. Use PLAIN LANGUAGE — never say percentile, p25, p50, p75, p90. Say "most people", "top earners", "lower end", "average" etc.`;
 
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const response = await fetch('/api/analyze', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
