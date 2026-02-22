@@ -119,7 +119,7 @@ x.fillStyle = "rgba(255,255,255,0.32)";
 /* Bottom URL */
 x.font = `500 13px ${MONO}`;
 x.fillStyle = "rgba(255,255,255,0.18)";
-x.fillText("knowyourpay.in", LX, 598);
+x.fillText("knowyourpay.vercel.app", LX, 598);
 
 /* ═══════════════════════════════════
    RIGHT SIDE — mini UI card

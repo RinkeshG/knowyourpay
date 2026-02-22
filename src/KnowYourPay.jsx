@@ -216,31 +216,35 @@ const fmt = (v, c = "INR") => { if (!v) return ""; const n = +v; if (c === "INR"
 const Bd = ({ t, c }) => { if (!t) return null; const p = t.split(/\*\*(.*?)\*\*/g); return <>{p.map((x, i) => i % 2 === 1 ? <strong key={i} style={{ color: c || "var(--ink)", fontWeight: 700 }}>{x}</strong> : <span key={i}>{x}</span>)}</> };
 const FI = ({ children, d = 0 }) => { const [v, setV] = useState(false); useEffect(() => { const t = setTimeout(() => setV(true), d); return () => clearTimeout(t) }, [d]); return <div style={{ opacity: v ? 1 : 0, transform: v ? "translateY(0)" : "translateY(14px)", transition: "all 550ms cubic-bezier(.23,1,.32,1)" }}>{children}</div> };
 const useM = () => { const [m, s] = useState(false); useEffect(() => { const c = () => s(window.innerWidth < 640); c(); window.addEventListener("resize", c); return () => window.removeEventListener("resize", c) }, []); return m };
-/* Smart share: uses Web Share API with image on mobile, falls back to URL */
-const doShare = async (platform, shareImgDataUrl) => {
-  const text = "I just found out if I'm being paid what I'm worth. Took 3 min. Free. Anonymous.";
-  const url = "https://knowyourpay.in";
-  /* Try native Web Share API first (works on mobile for WhatsApp, etc.) */
-  if (platform === "native" && navigator.share) {
+/* Share: always tries Web Share API with image file, graceful fallback */
+const doShare = async (shareImgDataUrl) => {
+  const text = "I just found out if I\u2019m being paid what I\u2019m worth.\nFree, 3 min, anonymous.";
+  const url = "https://knowyourpay.vercel.app";
+  /* Build share payload */
+  const shareData = { title: "KnowYourPay", text: text + "\n" + url };
+  /* Try attaching the image as a file */
+  if (shareImgDataUrl) {
     try {
-      const shareData = { title: "KnowYourPay", text, url };
-      /* Attach image as a file if available + browser supports sharing files */
-      if (shareImgDataUrl && navigator.canShare) {
-        const res = await fetch(shareImgDataUrl);
-        const blob = await res.blob();
-        const file = new File([blob], "knowyourpay.png", { type: "image/png" });
-        if (navigator.canShare({ files: [file] })) { shareData.files = [file]; }
+      const res = await fetch(shareImgDataUrl);
+      const blob = await res.blob();
+      const file = new File([blob], "knowyourpay.png", { type: "image/png" });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        shareData.files = [file];
       }
-      await navigator.share(shareData);
-      return;
-    } catch (e) { /* user cancelled or not supported — fall through */ }
+    } catch (e) { /* image attach failed, continue without */ }
   }
-  const m = {
-    whatsapp: `https://api.whatsapp.com/send?text=${encodeURIComponent(text + "\n\n" + url)}`,
-    twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`,
-    linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`
-  };
-  if (m[platform]) window.open(m[platform], "_blank", "noopener,noreferrer");
+  /* Try native share */
+  if (navigator.share) {
+    try { await navigator.share(shareData); return; } catch (e) { /* cancelled */ }
+  }
+  /* Fallback: copy text + URL to clipboard */
+  try {
+    await navigator.clipboard.writeText(text + "\n" + url);
+    alert("Share text copied to clipboard! Paste it into WhatsApp, X, or LinkedIn.");
+  } catch (e) {
+    /* Last resort: open WhatsApp web */
+    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text + "\n\n" + url)}`, "_blank");
+  }
 };
 
 
@@ -445,7 +449,7 @@ const makeShareCard = (analysis) => {
     x.font = "400 12px Arial,sans-serif"; x.fillStyle = "rgba(255,255,255,0.30)";
     ["\u2713 Free forever", "\u2713 Anonymous", "\u2713 No spam"].forEach((t, i) => x.fillText(t, LX + i * 140, 476));
     /* URL */
-    x.font = "500 13px monospace"; x.fillStyle = "rgba(255,255,255,0.16)"; x.fillText("knowyourpay.in", LX, 598);
+    x.font = "500 13px monospace"; x.fillStyle = "rgba(255,255,255,0.16)"; x.fillText("knowyourpay.vercel.app", LX, 598);
     /* ── Right side card ── */
     const CX = 690, CY = 55, CW = 455, CH = 520;
     x.shadowColor = "rgba(0,0,0,0.55)"; x.shadowBlur = 56; x.shadowOffsetY = 18;
@@ -539,7 +543,7 @@ export default function KnowYourPay() {
 
   const handleAuth = (ud) => { setUser(ud); setSA(false); try { const s = localStorage.getItem(SK + "_" + ud.id); if (s) { setHU(true); setA(JSON.parse(s)); setStep(3); return } } catch (e) { } setStep(0) };
   const getStarted = () => { if (user) { if (hasUsed) { setStep(3); return } setStep(0) } else setSA(true) };
-  const copyInvite = () => { navigator.clipboard.writeText("https://knowyourpay.in?ref=invite"); setIC(true); setTimeout(() => setIC(false), 2000) };
+  const copyInvite = () => { navigator.clipboard.writeText("https://knowyourpay.vercel.app?ref=invite"); setIC(true); setTimeout(() => setIC(false), 2000) };
   const signOut = () => { try { if (user) { localStorage.removeItem(UK); localStorage.removeItem(SK + "_" + user.id); localStorage.removeItem(SK + "_ul_" + user.id); } } catch (e) { } setUser(null); setA(null); setHU(false); setUL(0); setStep(-1); setSA(false); setF({ cr: "", tr: "", lv: "", ye: "", ind: [], stg: [], tc: [], co: "India", ci: "", salRange: "", cb: "", ce: "", expRange: "", hc: "no", np: "" }); };
 
   /* (G) API call — in production this goes to /api/analyze, prompt never client-side */
@@ -967,14 +971,10 @@ export default function KnowYourPay() {
                 </div>)}
               </div>
               <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
-                <div style={{ flex: 1, padding: "11px 14px", fontFamily: "var(--fm)", fontSize: 12, color: "var(--slate)", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 8, textAlign: "left", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>knowyourpay.in?ref=invite</div>
+                <div style={{ flex: 1, padding: "11px 14px", fontFamily: "var(--fm)", fontSize: 12, color: "var(--slate)", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 8, textAlign: "left", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>knowyourpay.vercel.app?ref=invite</div>
                 <button onClick={copyInvite} style={{ padding: "11px 18px", fontFamily: "var(--fb)", fontSize: 13, fontWeight: 700, color: "#fff", background: invCopied ? "var(--up)" : "var(--ink)", border: "none", borderRadius: 8, cursor: "pointer", whiteSpace: "nowrap" }}>{invCopied ? "Copied! ✓" : "Copy link"}</button>
               </div>
-              <div style={{ display: "flex", gap: 6 }}>
-                <button onClick={() => doShare("whatsapp", shareImg)} style={{ flex: 1, padding: 10, fontSize: 12, fontWeight: 600, color: "#fff", background: "#25D366", border: "none", borderRadius: 8, cursor: "pointer" }}>WhatsApp</button>
-                <button onClick={() => doShare("twitter", shareImg)} style={{ flex: 1, padding: 10, fontSize: 12, fontWeight: 600, color: "#fff", background: "#0a0f1a", border: "none", borderRadius: 8, cursor: "pointer" }}>𝕏</button>
-                <button onClick={() => doShare("linkedin", shareImg)} style={{ flex: 1, padding: 10, fontSize: 12, fontWeight: 600, color: "#fff", background: "#0a66c2", border: "none", borderRadius: 8, cursor: "pointer" }}>LinkedIn</button>
-              </div>
+              <button onClick={() => doShare(shareImg)} style={{ flex: 1, padding: 10, fontSize: 12, fontWeight: 600, color: "#fff", background: "var(--ink)", border: "none", borderRadius: 8, cursor: "pointer" }}>Share KnowYourPay</button>
             </div></FI>
           </div>}
 
@@ -983,14 +983,8 @@ export default function KnowYourPay() {
             <div style={{ fontFamily: "var(--fm)", fontSize: 10, fontWeight: 700, letterSpacing: ".08em", textTransform: "uppercase", color: "var(--accent)", marginBottom: 6 }}>Share this tool</div>
             <div style={{ fontFamily: "var(--fd)", fontSize: mob ? 16 : 18, fontWeight: 200, marginBottom: 4 }}>Know someone switching jobs? <span style={{ fontWeight: 700, fontStyle: "italic" }}>They need this.</span></div>
             <div style={{ fontSize: 13, color: "var(--muted)", lineHeight: 1.55, marginBottom: 16 }}>Share the tool (not your report). Their data stays private, just like yours.</div>
-            {/* Share image preview */}
-            {shareImg && <div style={{ marginBottom: 16 }}><img src={shareImg} alt="KnowYourPay share card" style={{ width: "100%", borderRadius: 10, border: "1px solid var(--border)" }} /></div>}
-            {/* Actions — simple two-button row */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-              <button onClick={() => { navigator.clipboard.writeText("I just found out if I\u2019m being paid what I\u2019m worth.\nFree, 3 min, anonymous.\nhttps://knowyourpay.in"); const b = document.activeElement; if (b) { b.textContent = "Copied! \u2713"; setTimeout(() => { b.textContent = "\ud83d\udccb Copy share text" }, 2000) } }} style={{ padding: "13px 0", fontFamily: "var(--fb)", fontSize: mob ? 12 : 13, fontWeight: 700, color: "#fff", background: "var(--ink)", border: "none", borderRadius: 10, cursor: "pointer" }}>{"\ud83d\udccb"} Copy share text</button>
-              <button onClick={() => { if (!shareImg) return; const a = document.createElement("a"); a.href = shareImg; a.download = "knowyourpay.png"; a.click() }} style={{ padding: "13px 0", fontFamily: "var(--fb)", fontSize: mob ? 12 : 13, fontWeight: 700, color: "var(--ink)", background: "var(--surface)", border: "1.5px solid var(--border)", borderRadius: 10, cursor: "pointer" }}>{"\u2b07\ufe0f"} Download image</button>
-            </div>
-            <div style={{ fontSize: 11, color: "var(--faint)", marginTop: 10, lineHeight: 1.5, textAlign: "center" }}>Copy the text + download the image, then paste both into WhatsApp, X, or LinkedIn.</div>
+            {shareImg && <div style={{ marginBottom: 16 }}><img src={shareImg} alt="KnowYourPay" style={{ width: "100%", borderRadius: 10, border: "1px solid var(--border)" }} /></div>}
+            <button onClick={() => doShare(shareImg)} style={{ width: "100%", padding: "14px 0", fontFamily: "var(--fb)", fontSize: mob ? 14 : 15, fontWeight: 700, color: "#fff", background: "var(--ink)", border: "none", borderRadius: 10, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>📤 Share KnowYourPay</button>
           </div></FI>
 
           <Ft />
