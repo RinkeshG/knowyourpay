@@ -218,10 +218,11 @@ const FI = ({ children, d = 0 }) => { const [v, setV] = useState(false); useEffe
 const useM = () => { const [m, s] = useState(false); useEffect(() => { const c = () => s(window.innerWidth < 640); c(); window.addEventListener("resize", c); return () => window.removeEventListener("resize", c) }, []); return m };
 /* Share: always tries Web Share API with image file, graceful fallback */
 const doShare = async (shareImgDataUrl) => {
-  const text = "I just found out if I\u2019m being paid what I\u2019m worth.\nFree, 3 min, anonymous.";
+  const text = "ran my salary through an AI tool. the gap it found was... uncomfortable.\nfree, 3 min, anonymous \u2014 honestly just try it";
   const url = "https://knowyourpay.vercel.app";
+  const fullText = text + "\n" + url;
   /* Build share payload */
-  const shareData = { title: "KnowYourPay", text: text + "\n" + url };
+  const shareData = { title: "KnowYourPay", text: fullText };
   /* Try attaching the image as a file */
   if (shareImgDataUrl) {
     try {
@@ -237,13 +238,12 @@ const doShare = async (shareImgDataUrl) => {
   if (navigator.share) {
     try { await navigator.share(shareData); return; } catch (e) { /* cancelled */ }
   }
-  /* Fallback: copy text + URL to clipboard */
+  /* Fallback: copy to clipboard */
   try {
-    await navigator.clipboard.writeText(text + "\n" + url);
-    alert("Share text copied to clipboard! Paste it into WhatsApp, X, or LinkedIn.");
+    await navigator.clipboard.writeText(fullText);
+    alert("Share text copied! Paste it into WhatsApp, X, or LinkedIn.");
   } catch (e) {
-    /* Last resort: open WhatsApp web */
-    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text + "\n\n" + url)}`, "_blank");
+    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(fullText)}`, "_blank");
   }
 };
 
@@ -257,10 +257,10 @@ const Logo = ({ s = 16, dk }) => <span style={{ fontFamily: "var(--fd)", fontSiz
 
 const Pill = ({ text, color, bg }) => <span style={{ display: "inline-flex", alignItems: "center", padding: "4px 10px", fontFamily: "var(--fb)", fontSize: 11, fontWeight: 700, color, background: bg, borderRadius: 999, whiteSpace: "nowrap", flexShrink: 0 }}>{text}</span>;
 
-/* (F: witty footer, correct name "Rinks") */
+/* (F: witty footer, correct name "Rinks" with X link) */
 const Ft = () => <div style={{ textAlign: "center", padding: "32px 20px 24px", borderTop: "1px solid var(--border)" }}>
   <div style={{ fontSize: 12, color: "var(--faint)", fontFamily: "var(--fb)", lineHeight: 1.6 }}>
-    <span>brewed on caffeine & Claude by </span><span style={{ fontWeight: 600, color: "var(--muted)" }}>Rinks</span>
+    <span>brewed on caffeine & Claude by </span><a href="https://x.com/rinks__g" target="_blank" rel="noopener noreferrer" style={{ fontWeight: 600, color: "var(--muted)", textDecoration: "none", borderBottom: "1px dotted var(--faint)" }}>Rinks</a>
     <span style={{ margin: "0 6px", opacity: .3 }}>·</span>
     <span style={{ fontStyle: "italic", opacity: .6 }}>because you deserve to know</span>
   </div>
@@ -405,93 +405,108 @@ const Bars = ({ range, youVal, label, cur, standing, mob, userName }) => {
 };
 
 
-/* ═══ SHARE CARD — mirrors the OG image brand design ═══ */
-const makeShareCard = (analysis) => {
+/* ═══ SHARE CARD — center-composed, crops well on all platforms ═══ */
+const makeShareCard = () => {
   try {
-    const W = 1200, H = 630, cv = document.createElement("canvas"); cv.width = W; cv.height = H;
+    const W = 1080, H = 1080, cv = document.createElement("canvas"); cv.width = W; cv.height = H;
     const x = cv.getContext("2d");
-    /* Background */
+    const RR = (ctx, rx, ry, rw, rh, r) => { ctx.beginPath(); ctx.moveTo(rx + r, ry); ctx.lineTo(rx + rw - r, ry); ctx.arcTo(rx + rw, ry, rx + rw, ry + r, r); ctx.lineTo(rx + rw, ry + rh - r); ctx.arcTo(rx + rw, ry + rh, rx + rw - r, ry + rh, r); ctx.lineTo(rx + r, ry + rh); ctx.arcTo(rx, ry + rh, rx, ry + rh - r, r); ctx.lineTo(rx, ry + r); ctx.arcTo(rx, ry, rx + r, ry, r); ctx.closePath() };
+    /* Dark bg */
     x.fillStyle = "#080d18"; x.fillRect(0, 0, W, H);
-    /* Vignette */
-    const vig = x.createRadialGradient(W / 2, H / 2, 180, W / 2, H / 2, 900);
-    vig.addColorStop(0, "rgba(12,22,44,0)"); vig.addColorStop(1, "rgba(4,8,16,0.55)");
-    x.fillStyle = vig; x.fillRect(0, 0, W, H);
+    /* Subtle radial glow center */
+    const glow = x.createRadialGradient(W / 2, H / 2 - 60, 0, W / 2, H / 2, 600);
+    glow.addColorStop(0, "rgba(30,86,160,0.08)"); glow.addColorStop(1, "transparent");
+    x.fillStyle = glow; x.fillRect(0, 0, W, H);
     /* Left accent bar */
     const bar = x.createLinearGradient(0, 0, 0, H);
     bar.addColorStop(0, "#3b82f6"); bar.addColorStop(1, "#1e3a6e");
     x.fillStyle = bar; x.fillRect(0, 0, 5, H);
-    /* ── Left side ── */
-    const LX = 64;
-    /* Logo wordmark */
-    x.font = "300 17px Georgia,serif"; x.fillStyle = "rgba(255,255,255,0.28)"; x.fillText("Know", LX, 58);
-    const w1 = x.measureText("Know").width;
-    x.font = "italic 600 17px Georgia,serif"; x.fillStyle = "#3b82f6"; x.fillText("Your", LX + w1 + 1, 58);
-    const w2 = x.measureText("Your").width;
-    x.font = "italic 700 17px Georgia,serif"; x.fillStyle = "rgba(255,255,255,0.82)"; x.fillText("Pay", LX + w1 + w2 + 2, 58);
-    /* Eyebrow */
-    x.font = "600 11px monospace"; x.fillStyle = "rgba(96,165,250,0.55)";
-    x.fillText("SALARY ANALYSIS", LX, 128);
-    /* Headline line 1 — ultra-thin */
-    x.font = "300 72px Georgia,serif"; x.fillStyle = "rgba(255,255,255,0.88)"; x.fillText("Find out what", LX, 218);
-    /* Headline line 2 — bold italic accent */
-    x.font = "italic bold 72px Georgia,serif"; x.fillStyle = "#60a5fa"; x.fillText("you're worth.", LX, 308);
-    /* Divider */
+    /* ── Logo wordmark — center top ── */
+    x.textAlign = "center";
+    x.font = "300 20px Georgia,serif"; x.fillStyle = "rgba(255,255,255,0.3)";
+    const kw = x.measureText("Know").width;
+    x.font = "italic 600 20px Georgia,serif";
+    const yw = x.measureText("Your").width;
+    x.font = "italic 700 20px Georgia,serif";
+    const pw = x.measureText("Pay").width;
+    const totalW = kw + yw + pw + 6;
+    const logoX = (W - totalW) / 2;
+    x.textAlign = "left";
+    x.font = "300 20px Georgia,serif"; x.fillStyle = "rgba(255,255,255,0.3)"; x.fillText("Know", logoX, 72);
+    x.font = "italic 600 20px Georgia,serif"; x.fillStyle = "#3b82f6"; x.fillText("Your", logoX + kw + 3, 72);
+    x.font = "italic 700 20px Georgia,serif"; x.fillStyle = "rgba(255,255,255,0.85)"; x.fillText("Pay", logoX + kw + yw + 6, 72);
+    /* ── Main headline — centered ── */
+    x.textAlign = "center";
+    x.font = "300 56px Georgia,serif"; x.fillStyle = "rgba(255,255,255,0.9)";
+    x.fillText("Am I being paid", W / 2, 160);
+    x.font = "italic bold 58px Georgia,serif"; x.fillStyle = "#60a5fa";
+    x.fillText("what I'm worth?", W / 2, 235);
+    /* Thin separator */
     x.strokeStyle = "rgba(59,130,246,0.3)"; x.lineWidth = 1.5;
-    x.beginPath(); x.moveTo(LX, 340); x.lineTo(LX + 360, 340); x.stroke();
+    x.beginPath(); x.moveTo(W / 2 - 120, 270); x.lineTo(W / 2 + 120, 270); x.stroke();
     /* Sub-copy */
-    x.font = "400 16px Arial,sans-serif"; x.fillStyle = "rgba(255,255,255,0.36)";
-    x.fillText("free  ·  3 minutes  ·  100% anonymous", LX, 373);
-    /* CTA button */
-    const RR = (ctx, rx, ry, rw, rh, r) => { ctx.beginPath(); ctx.moveTo(rx + r, ry); ctx.lineTo(rx + rw - r, ry); ctx.arcTo(rx + rw, ry, rx + rw, ry + r, r); ctx.lineTo(rx + rw, ry + rh - r); ctx.arcTo(rx + rw, ry + rh, rx + rw - r, ry + rh, r); ctx.lineTo(rx + r, ry + rh); ctx.arcTo(rx, ry + rh, rx, ry + rh - r, r); ctx.lineTo(rx, ry + r); ctx.arcTo(rx, ry, rx + r, ry, r); ctx.closePath() };
-    RR(x, LX, 400, 270, 48, 8); x.fillStyle = "#1e56a0"; x.fill();
-    x.font = "bold 15px Arial,sans-serif"; x.fillStyle = "#fff"; x.fillText("Check what I'm worth  \u2192", LX + 20, 429);
-    /* Trust badges */
-    x.font = "400 12px Arial,sans-serif"; x.fillStyle = "rgba(255,255,255,0.30)";
-    ["\u2713 Free forever", "\u2713 Anonymous", "\u2713 No spam"].forEach((t, i) => x.fillText(t, LX + i * 140, 476));
-    /* URL */
-    x.font = "500 13px monospace"; x.fillStyle = "rgba(255,255,255,0.16)"; x.fillText("knowyourpay.vercel.app", LX, 598);
-    /* ── Right side card ── */
-    const CX = 690, CY = 55, CW = 455, CH = 520;
-    x.shadowColor = "rgba(0,0,0,0.55)"; x.shadowBlur = 56; x.shadowOffsetY = 18;
-    RR(x, CX, CY, CW, CH, 14); x.fillStyle = "#0d1525"; x.fill();
+    x.font = "400 18px Arial,sans-serif"; x.fillStyle = "rgba(255,255,255,0.35)";
+    x.fillText("free \u00b7 3 minutes \u00b7 100% anonymous", W / 2, 305);
+    /* ── Bar chart card — centered ── */
+    const cardW = 700, cardH = 420, cardX = (W - cardW) / 2, cardY = 345;
+    x.shadowColor = "rgba(0,0,0,0.5)"; x.shadowBlur = 50; x.shadowOffsetY = 16;
+    RR(x, cardX, cardY, cardW, cardH, 14); x.fillStyle = "#0d1525"; x.fill();
     x.shadowBlur = 0; x.shadowOffsetY = 0;
-    RR(x, CX, CY, CW, CH, 14); x.strokeStyle = "rgba(255,255,255,0.09)"; x.lineWidth = 1; x.stroke();
-    /* Card verdict header */
-    x.font = "700 8px monospace"; x.fillStyle = "rgba(255,255,255,0.22)"; x.fillText("YOUR VERDICT", CX + 22, CY + 30);
-    x.font = "300 19px Georgia,serif"; x.fillStyle = "rgba(255,255,255,0.78)"; x.fillText("You're underpaid by", CX + 22, CY + 60);
-    x.font = "italic bold 19px Georgia,serif"; x.fillStyle = "#f87171"; x.fillText("\u20b96\u20138L this year.", CX + 22, CY + 86);
+    RR(x, cardX, cardY, cardW, cardH, 14); x.strokeStyle = "rgba(255,255,255,0.08)"; x.lineWidth = 1; x.stroke();
+    /* Card header */
+    x.textAlign = "left";
+    x.font = "700 10px monospace"; x.fillStyle = "rgba(255,255,255,0.2)";
+    x.fillText("YOUR VERDICT", cardX + 28, cardY + 32);
+    x.font = "300 22px Georgia,serif"; x.fillStyle = "rgba(255,255,255,0.8)";
+    x.fillText("You're underpaid by", cardX + 28, cardY + 65);
+    x.font = "italic bold 22px Georgia,serif"; x.fillStyle = "#f87171";
+    x.fillText("\u20b96\u20138L this year", cardX + 28, cardY + 96);
     /* UNDERPAID badge */
-    RR(x, CX + 342, CY + 20, 88, 22, 4); x.fillStyle = "#450a0a"; x.fill();
-    x.font = "bold 9px Arial,sans-serif"; x.fillStyle = "#f87171"; x.fillText("UNDERPAID", CX + 357, CY + 35);
+    RR(x, cardX + cardW - 118, cardY + 22, 92, 24, 5); x.fillStyle = "#450a0a"; x.fill();
+    x.font = "bold 10px Arial,sans-serif"; x.fillStyle = "#f87171"; x.textAlign = "center";
+    x.fillText("UNDERPAID", cardX + cardW - 72, cardY + 39); x.textAlign = "left";
     /* Divider */
-    x.strokeStyle = "rgba(255,255,255,0.07)"; x.lineWidth = 1;
-    x.beginPath(); x.moveTo(CX, CY + 104); x.lineTo(CX + CW, CY + 104); x.stroke();
-    /* Bar chart */
-    x.font = "700 8px monospace"; x.fillStyle = "rgba(255,255,255,0.18)";
-    x.fillText("MARKET RANGE  \u00b7  SR. PM  \u00b7  BENGALURU", CX + 22, CY + 122);
-    const barsD = [{ pct: 32, val: "\u20b918L", lbl: "Low", isYou: false }, { pct: 55, val: "\u20b928L", lbl: "Avg", isYou: false }, { pct: 42, val: "\u20b922L", lbl: "YOU", isYou: true }, { pct: 75, val: "\u20b938L", lbl: "Strong", isYou: false }, { pct: 100, val: "\u20b952L", lbl: "Top", isYou: false }];
-    const bAT = CY + 138, bAH = 143, bW = 64, bG = 18, tot = barsD.length * bW + (barsD.length - 1) * bG, b0 = CX + (CW - tot) / 2;
+    x.strokeStyle = "rgba(255,255,255,0.06)"; x.lineWidth = 1;
+    x.beginPath(); x.moveTo(cardX, cardY + 115); x.lineTo(cardX + cardW, cardY + 115); x.stroke();
+    /* Bar chart label */
+    x.font = "700 9px monospace"; x.fillStyle = "rgba(255,255,255,0.18)";
+    x.fillText("MARKET RANGE  \u00b7  SR. PM  \u00b7  BENGALURU", cardX + 28, cardY + 138);
+    /* Bars */
+    const barsD = [{ pct: 32, val: "\u20b918L", lbl: "Low", you: false }, { pct: 55, val: "\u20b928L", lbl: "Avg", you: false }, { pct: 42, val: "\u20b922L", lbl: "YOU", you: true }, { pct: 75, val: "\u20b938L", lbl: "Strong", you: false }, { pct: 100, val: "\u20b952L", lbl: "Top", you: false }];
+    const bAT = cardY + 155, bAH = 120, bW = 96, bG = 22;
+    const bTot = barsD.length * bW + (barsD.length - 1) * bG;
+    const b0 = cardX + (cardW - bTot) / 2;
     barsD.forEach((b, i) => {
       const bx = b0 + i * (bW + bG), bh = Math.round(b.pct / 100 * bAH), by = bAT + bAH - bh;
       const g = x.createLinearGradient(0, by, 0, by + bh);
-      if (b.isYou) { g.addColorStop(0, "#fca5a5"); g.addColorStop(1, "#dc2626"); } else { g.addColorStop(0, "rgba(147,197,253,0.52)"); g.addColorStop(1, "rgba(147,197,253,0.14)"); }
-      RR(x, bx, by, bW, bh, 4); x.fillStyle = g; x.fill();
-      x.font = `${b.isYou ? "700" : "600"} 10px monospace`; x.fillStyle = b.isYou ? "#fff" : "rgba(255,255,255,0.35)"; x.textAlign = "center";
-      x.fillText(b.val, bx + bW / 2, by - 5);
-      x.font = `${b.isYou ? "800" : "600"} 9px Arial,sans-serif`; x.fillStyle = b.isYou ? "#fff" : "rgba(255,255,255,0.20)";
-      x.fillText(b.lbl, bx + bW / 2, bAT + bAH + 16); x.textAlign = "left";
+      if (b.you) { g.addColorStop(0, "#fca5a5"); g.addColorStop(1, "#dc2626"); } else { g.addColorStop(0, "rgba(147,197,253,0.5)"); g.addColorStop(1, "rgba(147,197,253,0.12)"); }
+      RR(x, bx, by, bW, bh, 5); x.fillStyle = g; x.fill();
+      x.font = `${b.you ? "700" : "600"} 12px monospace`; x.fillStyle = b.you ? "#fff" : "rgba(255,255,255,0.35)";
+      x.textAlign = "center"; x.fillText(b.val, bx + bW / 2, by - 6);
+      x.font = `${b.you ? "800" : "600"} 11px Arial,sans-serif`; x.fillStyle = b.you ? "#fff" : "rgba(255,255,255,0.2)";
+      x.fillText(b.lbl, bx + bW / 2, bAT + bAH + 18); x.textAlign = "left";
     });
     /* Divider */
-    x.strokeStyle = "rgba(255,255,255,0.07)"; x.lineWidth = 1;
-    x.beginPath(); x.moveTo(CX, bAT + bAH + 32); x.lineTo(CX + CW, bAT + bAH + 32); x.stroke();
+    x.strokeStyle = "rgba(255,255,255,0.06)"; x.lineWidth = 1;
+    x.beginPath(); x.moveTo(cardX, bAT + bAH + 34); x.lineTo(cardX + cardW, bAT + bAH + 34); x.stroke();
     /* Gameplan boxes */
-    const gT = bAT + bAH + 44, gW = 120, gH = 64, gG = 16, gD = [{ val: "\u20b934L", lbl: "ASK FOR", col: "#60a5fa" }, { val: "\u20b930L", lbl: "AIM FOR", col: "#34d399" }, { val: "\u20b926L", lbl: "WALK AWAY", col: "#f87171" }];
-    const gX0 = CX + (CW - (3 * gW + 2 * gG)) / 2;
-    gD.forEach((g, i) => {
-      const gx = gX0 + i * (gW + gG); RR(x, gx, gT, gW, gH, 8); x.fillStyle = "rgba(255,255,255,0.04)"; x.fill(); x.strokeStyle = "rgba(255,255,255,0.08)"; x.lineWidth = 1; x.stroke();
-      x.font = "700 20px monospace"; x.fillStyle = g.col; x.textAlign = "center"; x.fillText(g.val, gx + gW / 2, gT + 30);
-      x.font = "700 8px Arial,sans-serif"; x.fillStyle = "rgba(255,255,255,0.22)"; x.fillText(g.lbl, gx + gW / 2, gT + 50); x.textAlign = "left";
+    const gT = bAT + bAH + 48, gpW = 186, gpH = 62, gpG = 20;
+    const gpD = [{ val: "\u20b934L", lbl: "ASK FOR", col: "#60a5fa" }, { val: "\u20b930L", lbl: "AIM FOR", col: "#34d399" }, { val: "\u20b926L", lbl: "WALK AWAY", col: "#f87171" }];
+    const gpX0 = cardX + (cardW - (3 * gpW + 2 * gpG)) / 2;
+    gpD.forEach((g, i) => {
+      const gx = gpX0 + i * (gpW + gpG);
+      RR(x, gx, gT, gpW, gpH, 8); x.fillStyle = "rgba(255,255,255,0.04)"; x.fill();
+      x.strokeStyle = "rgba(255,255,255,0.07)"; x.lineWidth = 1; x.stroke();
+      x.font = "700 24px monospace"; x.fillStyle = g.col; x.textAlign = "center";
+      x.fillText(g.val, gx + gpW / 2, gT + 28);
+      x.font = "700 9px Arial,sans-serif"; x.fillStyle = "rgba(255,255,255,0.22)";
+      x.fillText(g.lbl, gx + gpW / 2, gT + 48); x.textAlign = "left";
     });
+    /* URL bottom center */
+    x.textAlign = "center";
+    x.font = "500 14px monospace"; x.fillStyle = "rgba(255,255,255,0.12)";
+    x.fillText("knowyourpay.vercel.app", W / 2, H - 36);
+    x.textAlign = "left";
     return cv.toDataURL("image/png");
   } catch (e) { return null }
 };
