@@ -980,19 +980,17 @@ export default function KnowYourPay() {
 
           {/* Share */}
           <FI d={500}><div style={{ background: "var(--card-bg)", border: "1px solid var(--border)", borderRadius: 14, padding: mob ? "18px" : "24px", marginBottom: 12, boxShadow: "0 4px 24px rgba(10,15,26,.06)" }}>
-            <div style={{ fontFamily: "var(--fm)", fontSize: 10, fontWeight: 700, letterSpacing: ".08em", textTransform: "uppercase", color: "var(--accent)", marginBottom: 6 }}>Spread the word</div>
+            <div style={{ fontFamily: "var(--fm)", fontSize: 10, fontWeight: 700, letterSpacing: ".08em", textTransform: "uppercase", color: "var(--accent)", marginBottom: 6 }}>Share this tool</div>
             <div style={{ fontFamily: "var(--fd)", fontSize: mob ? 16 : 18, fontWeight: 200, marginBottom: 4 }}>Know someone switching jobs? <span style={{ fontWeight: 700, fontStyle: "italic" }}>They need this.</span></div>
-            <div style={{ fontSize: 13, color: "var(--muted)", lineHeight: 1.55, marginBottom: 16 }}>Share the tool (not your report) — and unlock Pro features.</div>
-            {/* Native share (mobile) — includes image */}
-            {navigator.share && <button onClick={() => doShare("native", shareImg)} style={{ width: "100%", padding: "13px 0", fontFamily: "var(--fb)", fontSize: mob ? 13 : 14, fontWeight: 700, color: "#fff", background: "var(--ink)", border: "none", borderRadius: 10, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 8 }}>
-              📤 Share (with image)
-            </button>}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 10 }}>
-              <button onClick={() => doShare("whatsapp", shareImg)} style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "12px 8px", fontFamily: "var(--fb)", fontSize: mob ? 12 : 13, fontWeight: 700, color: "#fff", background: "#25D366", border: "none", borderRadius: 10, cursor: "pointer" }}>WhatsApp</button>
-              <button onClick={() => doShare("twitter", shareImg)} style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "12px 8px", fontFamily: "var(--fb)", fontSize: mob ? 12 : 13, fontWeight: 700, color: "#fff", background: "#0a0f1a", border: "none", borderRadius: 10, cursor: "pointer" }}>𝕏</button>
-              <button onClick={() => doShare("linkedin", shareImg)} style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "12px 8px", fontFamily: "var(--fb)", fontSize: mob ? 12 : 13, fontWeight: 700, color: "#fff", background: "#0a66c2", border: "none", borderRadius: 10, cursor: "pointer" }}>LinkedIn</button>
+            <div style={{ fontSize: 13, color: "var(--muted)", lineHeight: 1.55, marginBottom: 16 }}>Share the tool (not your report). Their data stays private, just like yours.</div>
+            {/* Share image preview */}
+            {shareImg && <div style={{ marginBottom: 16 }}><img src={shareImg} alt="KnowYourPay share card" style={{ width: "100%", borderRadius: 10, border: "1px solid var(--border)" }} /></div>}
+            {/* Actions — simple two-button row */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+              <button onClick={() => { navigator.clipboard.writeText("I just found out if I\u2019m being paid what I\u2019m worth.\nFree, 3 min, anonymous.\nhttps://knowyourpay.in"); const b = document.activeElement; if (b) { b.textContent = "Copied! \u2713"; setTimeout(() => { b.textContent = "\ud83d\udccb Copy share text" }, 2000) } }} style={{ padding: "13px 0", fontFamily: "var(--fb)", fontSize: mob ? 12 : 13, fontWeight: 700, color: "#fff", background: "var(--ink)", border: "none", borderRadius: 10, cursor: "pointer" }}>{"\ud83d\udccb"} Copy share text</button>
+              <button onClick={() => { if (!shareImg) return; const a = document.createElement("a"); a.href = shareImg; a.download = "knowyourpay.png"; a.click() }} style={{ padding: "13px 0", fontFamily: "var(--fb)", fontSize: mob ? 12 : 13, fontWeight: 700, color: "var(--ink)", background: "var(--surface)", border: "1.5px solid var(--border)", borderRadius: 10, cursor: "pointer" }}>{"\u2b07\ufe0f"} Download image</button>
             </div>
-            <button onClick={() => { if (!shareImg) return; const a = document.createElement("a"); a.href = shareImg; a.download = "knowyourpay.png"; a.click() }} style={{ width: "100%", padding: 11, fontFamily: "var(--fb)", fontSize: 12, fontWeight: 600, color: "var(--muted)", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 10, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>⬇ Download share image</button>
+            <div style={{ fontSize: 11, color: "var(--faint)", marginTop: 10, lineHeight: 1.5, textAlign: "center" }}>Copy the text + download the image, then paste both into WhatsApp, X, or LinkedIn.</div>
           </div></FI>
 
           <Ft />
